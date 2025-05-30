@@ -2,15 +2,18 @@ Web VPython 3.2
 
 scene = canvas(width = 600, height = 600)
 
-
-
+e = 1.6e-19 #elementary charge
+def dipolemoment (q):
+    return q*
 def cl(x,y,z):
+    cl.charge = -e
     return sphere(pos = vector(x,y,z), radius = 79, color = color.green)
 def h2o(x,y,z):
     oxy = sphere(pos = vector(x,y,z), radius = 48, color = color.red)
     hydro1 = sphere(pos = vector(x+95.84*cos(radians(52.225)),y+95.84*sin(radians(52.225)),z), radius = 37)
     hydro2 = sphere(pos = vector(x+95.84*cos(radians(52.225)),y-95.84*sin(radians(52.225)),z), radius = 37)
     h20 = compoud([oxy, hydro1, hydro2])
+    hydro1.charge 
     return h2o(pos = vector (x,y,z))
 def xpos(evt):
     return xpos = evt.value
