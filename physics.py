@@ -39,9 +39,9 @@ def xpos(evt):
 def ypos(evt):
     return ypos = evt.value
 
-xposslider = slider(bind = xpos, min = 1, max = 1000, step = 1)
+xposslider = slider(bind = xpos, min = 0, max = 1000, step = 1)
 wtx = wtext(text='0')
-yposslider = slider(bind = ypos, min = 1, max = 1000, step = 1)
+yposslider = slider(bind = ypos, min = 0, max = 1000, step = 1)
 wty = wtext(text='0')
 
 
@@ -79,19 +79,19 @@ def part2(evt):
     elif evt.text is 'water':
         part2 = h2o(xposslider.value,yposslider.value)
         hydro1.charge = 0.179*e
-        hydro1.pos = vector(x+95.84*cos(radians(52.225)),y+95.84*sin(radians(52.225)),0)
+        hydro1.pos = vector(xposslider.value+95.84*cos(radians(52.225)),yposslider.value+95.84*sin(radians(52.225)),0)
         hydro1.velocity = vec(0,0,0)
         hydro1.acceleration = vec(0,0,0)
         hydro1.mass = 1.6735575e-27
 
         hydro2.charge = 0.179*e
-        hydro2.pos = vector(x+95.84*cos(radians(52.225)),y-95.84*sin(radians(52.225)),0)
+        hydro2.pos = vector(xposslider.value+95.84*cos(radians(52.225)),yposslider.value-95.84*sin(radians(52.225)),0)
         hydro2.velocity = vec(0,0,0)
         hydro2.acceleration = vec(0,0,0)
         hydro2.mass = 1.6735575e-27
 
         oxy.charge = -0.358*e
-        oxy.pos = vector(x,y,0)
+        oxy.pos = vector(xposslider.value,yposslider.value,0)
         oxy.velocity = vec(0,0,0)
         oxy.acceleration = vec(0,0,0)
         oxy.mass = 2.6566962e-26
@@ -106,7 +106,7 @@ water = radio(bind=part1, text='water', name='part1')
 chlorine2 = radio(bind=part2,text='chlorine', name='part2')
 water2 = radio(bind=part2, text='water', name='part2')
 
-
+#if 
 while True:
     rate(100)
     
