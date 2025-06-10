@@ -6,8 +6,6 @@ e = 1.6e-19 #elementary charge
 k = 9e9 #Coulomb's law constant
 dt = 100 #dt value
 t = 0 #initial t
-cl.charge = -e
-h20dipolemoment = 6e-30 #Cm
 
 e=1.6e-19
 
@@ -15,13 +13,11 @@ e=1.6e-19
 
 
 def efield(particle1, particle2):
-    return ((k*particle1.charge/((particle1.pos - particle2.pos).mag)**2))*hat(particle1.pos - particle2.pos)
+    return ((k*particle1.charge/((particle1.pos - particle2.pos).mag)**2))*(particle1.pos - particle2.pos).hat
 def force(particle1, particle2):
     return (particle2.charge*efield(particle1,particle2))
-def dipolemoment(particle, positivecharge,negativecharge):
-    return particle.charge*(postivecharge.pos - negativecharge.pos)
-def torque(moment, field, theta):
-    return cross(moment,field)
+#def torque(particle, force)
+ #   return (particle.inertia*particle.
     
     
     
@@ -46,10 +42,12 @@ wty = wtext(text='0')
 
 
 
-def part1(evt):
+def particle1(evt):
+    global part1
+    global part1charge
     if evt.text is 'chlorine':
         part1 = cl(0,0,0)
-        part1.charge = e
+        part1charge = -e
     elif evt.text is 'water':
         part1 = h2o(0,0,0)
         hydro1.charge = 0.179*e
@@ -64,18 +62,28 @@ def part1(evt):
         hydro2.acceleration = vec(0,0,0)
         hydro2.mass = 1.6735575e-27
 
-        oxy.charge = -0.358*e
+        oxy.charge = 0.358*-e
         oxy.pos = vector(0,0,0)
         oxy.velocity = vec(0,0,0)
         oxy.acceleration = vec(0,0,0)
         oxy.mass = 2.6566962e-26
         
-        h2ocom = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
-        h2o.origin = h2ocom
+        h2o.com = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
+        h2o.origin = h2o.com
+        h2o.inertia = hydro1.mass*(hydro1.pos - h2o.com).mag**2+hydro2.mass*(hydro2.pos - h2o.com).mag**2+oxy.mass*(oxy.pos - h2o.com).mag**2
 
-def part2(evt):
+def particle2(evt):
+    global part2
+    global part2com
+    global part2inertia
+    global part2moment
+    global part2torque
+    global part2angAcc
+    global part2angVel
+    global part2angDisp
     if evt.text is 'chlorine':
         part2 = cl(xposslider.value,yposslider.value)
+        cl.charge = -e
     elif evt.text is 'water':
         part2 = h2o(xposslider.value,yposslider.value)
         hydro1.charge = 0.179*e
@@ -90,30 +98,51 @@ def part2(evt):
         hydro2.acceleration = vec(0,0,0)
         hydro2.mass = 1.6735575e-27
 
-        oxy.charge = -0.358*e
+        oxy.charge = 0.358*-e
         oxy.pos = vector(xposslider.value,yposslider.value,0)
         oxy.velocity = vec(0,0,0)
         oxy.acceleration = vec(0,0,0)
         oxy.mass = 2.6566962e-26
         
-        h2ocom = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
-        h2o.origin = h2ocom
+        part2com = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
+        part2.origin = h2o.com
+        part2inertia = hydro1.mass*(hydro1.pos - h2o.com).mag**2+hydro2.mass*(hydro2.pos - h2o.com).mag**2+oxy.mass*(oxy.pos - h2o.com).mag**2
+        part2moment = 6e-18*(oxy.pos - h2o.com) #C*pm
+        part2torque = 0
+        part2angAcc = 0
+        part2angVel = 0
+        part2angDisp = 0
 
 
-chlorine = radio(bind=part1,text='chlorine', name='part1')
-water = radio(bind=part1, text='water', name='part1')
 
-chlorine2 = radio(bind=part2,text='chlorine', name='part2')
-water2 = radio(bind=part2, text='water', name='part2')
+chlorine = radio(bind=particle1,text='chlorine', name='part1', pos = scene.append_to_caption('\n\n'))
+water = radio(bind=particle1, text='water', name='part1', pos = scene.append_to_caption('\n\n'))
 
-#if 
+chlorine2 = radio(bind=particle2,text='chlorine', name='part2', pos = scene.append_to_caption('\n\n\n'))
+water2 = radio(bind=particle2, text='water', name='part2',pos = scene.append_to_caption('\n\n\n'))
+
+#arrow(headlength = 10, shaftwidth = 0.1)
+
+run = False
+
+def runSimulation(evt):
+    global run
+    if evt.text == 'Run Simulation':
+        run = True
+        
+runButton = button(bind = runSimulation, text = 'Run Simulation')
+
 while True:
     rate(100)
-    
-    
-    
-    wtx.text = "X position (pm) = "'{:.2f}'.format(xposslider.value)
-    wty.text = "Y position (pm) = " '{:.2f}'.format(yposslider.value)
-    t+dt
+    if run == True:
+        part1.pos = part1.pos + vector(100, 0, 0)  # example update, make sure part1 is defined
+        part2torque = cross(part2moment, vector(100,100,0))
+        part2angAcc = part2.torque / part2.inertia
+        part2angVel = part2.angVel + part2.angAcc * dt
+        part2angDisp = part2.angVel * dt
+        rotate(part2, axis=vector(0, 0, 1), angle=part2angDisp, origin=part2com)
+        t = t + dt
+    wtx.text = "X position (pm) = " + '{:.2f}'.format(xposslider.value)
+    wty.text = "Y position (pm) = " + '{:.2f}'.format(yposslider.value)
 
 
