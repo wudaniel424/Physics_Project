@@ -6,9 +6,18 @@ e = 1.6e-19 #elementary charge
 k = 9e9 #Coulomb's law constant
 dt = 100 #dt value
 t = 0 #initial t
+part2com = 0
+part2inertia = 0
+part2moment = 0
+part2torque = 0
+part2angAcc = 0
+part2angVel = 0
+part2angDisp = 0
 
-e=1.6e-19
-
+def cross(a, b):
+    return vector(a.y * b.z - a.z * b.y,
+                  a.z * b.x - a.x * b.z,
+                  a.x * b.y - a.y * b.x)
 
 
 
@@ -28,7 +37,7 @@ def h2o(x,y):
     oxy = sphere(pos = vector(x,y,0), radius = 48, color = color.red)
     hydro1 = sphere(pos = vector(x+95.84*cos(radians(52.225)),y+95.84*sin(radians(52.225)),0), radius = 37)
     hydro2 = sphere(pos = vector(x+95.84*cos(radians(52.225)),y-95.84*sin(radians(52.225)),0), radius = 37)
-    h2o = compoud([oxy, hydro1, hydro2])
+    h2o = compound([oxy, hydro1, hydro2])
     h2o(pos = vector(x,y,0))
 def xpos(evt):
     return xpos = evt.value
@@ -137,9 +146,9 @@ while True:
     if run == True:
         part1.pos = part1.pos + vector(100, 0, 0)  # example update, make sure part1 is defined
         part2torque = cross(part2moment, vector(100,100,0))
-        part2angAcc = part2.torque / part2.inertia
-        part2angVel = part2.angVel + part2.angAcc * dt
-        part2angDisp = part2.angVel * dt
+        part2angAcc = part2torque/ part2inertia
+        part2angVel = part2angVel + part2angAcc * dt
+        part2angDisp = part2angVel * dt
         rotate(part2, axis=vector(0, 0, 1), angle=part2angDisp, origin=part2com)
         t = t + dt
     wtx.text = "X position (pm) = " + '{:.2f}'.format(xposslider.value)
