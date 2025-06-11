@@ -18,11 +18,15 @@ def xpos(evt):
     return xpos = evt.value
 def ypos(evt):
     return ypos = evt.value
+def rotAngle(evt):
+    return rotAngle = evt.value
 
 xposslider = slider(bind = xpos, min = 79, max = 1000, step = 1)
 wtx = wtext(text='0')
 yposslider = slider(bind = ypos, min = 79, max = 1000, step = 1)
 wty = wtext(text='0')
+#rotAngleSlider = slider(bind = rotAngle, min = 0, max = 2*pi, step = 0.1)
+#wtAngle = wtext(text = '0')
 
 part1 = cl(0,0,0)
 generate = False
@@ -56,26 +60,27 @@ while True:
     if generate == True:
         if Particle2 == 'Water':
             part2 = h2o(xposslider.value, yposslider.value)
-            oxy = sphere(pos = vector(xposslider.value, yposslider.value, 0), radius = 48, color = color.red, visible = False)
-            hydro1 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value + 95.84 * sin(radians(52.225)), 0), radius = 37, visible = False)
-            hydro2 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value - 95.84 * sin(radians(52.225)), 0), radius = 37, visible = False)
-            
-            hydro1.pos = vector(xposslider.value+95.84*cos(radians(52.225)),yposslider.value+95.84*sin(radians(52.225)),0)
+            oxy = sphere(pos = vector(xposslider.value, yposslider.value, 0), radius = 48, color = color.red, visible = True)
+            hydro1 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value + 95.84 * sin(radians(52.225)), 0), radius = 37, visible = True)
+            hydro2 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value - 95.84 * sin(radians(52.225)), 0), radius = 37, visible = True)
+            #rotate(part2, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
+            #rotate(oxy, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
+            #rotate(hydro1, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
+            #rotate(hydro2, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
             hydro1.mass = 1.6735575e-27
-            hydro2.pos = vector(xposslider.value+95.84*cos(radians(52.225)),yposslider.value-95.84*sin(radians(52.225)),0)
             hydro2.mass = 1.6735575e-27
-            oxy.pos = vector(xposslider.value,yposslider.value,0)
             oxy.mass = 2.6566962e-26
         
             part2.com = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
             #part2.origin = h2o.com
-            #part2.inertia = hydro1.mass*(hydro1.pos - h2o.com).mag**2+hydro2.mass*(hydro2.pos - h2o.com).mag**2+oxy.mass*(oxy.pos - h2o.com).mag**2
-            #part2.moment = 6e-18*(oxy.pos - h2o.com) #C*pm
+            part2.inertia = hydro1.mass*(hydro1.pos - part2.com).mag**2+hydro2.mass*(hydro2.pos - part2.com).mag**2+oxy.mass*(oxy.pos - part2.com).mag**2
+            part2.moment = 6e-18*(oxy.pos - part2.com) #C*pm
             part2.torque = 0
             part2.angAcc = 0
             part2.angVel = 0
             part2.angDisp = 0
             generate = False
+            print(part2.com)
         elif Particle2 == 'Chlorine':
             part2 = cl(xposslider.value, yposslider.value)
             part2.charge = -e
@@ -83,5 +88,7 @@ while True:
     if run == True:
         part1.pos = part1.pos + vector(100, 0, 0)  # example update, make sure part1 is defined
         part2.pos = part2.pos - vector(100,0,0)
+        
     wtx.text = "X position (pm) = " + '{:.2f}'.format(xposslider.value)
     wty.text = "Y position (pm) = " + '{:.2f}'.format(yposslider.value)
+    #wtAngle.text = "Initial Angle of Rotation (radians) = " + '{:.2f}'.format(rotAngleSlider.value)
