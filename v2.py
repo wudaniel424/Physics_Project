@@ -31,6 +31,7 @@ def genPart2(evt):
     global generate
     if evt.text == 'Generate Second Particle':
         generate = True
+        generateButton.delete()
 generateButton = button(bind = genPart2, text = 'Generate Second Particle')
 
 Particle2 ='placeholder'
@@ -55,9 +56,9 @@ while True:
     if generate == True:
         if Particle2 == 'Water':
             part2 = h2o(xposslider.value, yposslider.value)
-            oxy = sphere(pos = vector(xposslider.value, yposslider.value, 0), radius = 48, color = color.red)
-            hydro1 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value + 95.84 * sin(radians(52.225)), 0), radius = 37)
-            hydro2 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value - 95.84 * sin(radians(52.225)), 0), radius = 37)
+            oxy = sphere(pos = vector(xposslider.value, yposslider.value, 0), radius = 48, color = color.red, visible = False)
+            hydro1 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value + 95.84 * sin(radians(52.225)), 0), radius = 37, visible = False)
+            hydro2 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value - 95.84 * sin(radians(52.225)), 0), radius = 37, visible = False)
             
             hydro1.pos = vector(xposslider.value+95.84*cos(radians(52.225)),yposslider.value+95.84*sin(radians(52.225)),0)
             hydro1.mass = 1.6735575e-27
@@ -68,22 +69,19 @@ while True:
         
             part2.com = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
             #part2.origin = h2o.com
-            part2.inertia = hydro1.mass*(hydro1.pos - h2o.com).mag**2+hydro2.mass*(hydro2.pos - h2o.com).mag**2+oxy.mass*(oxy.pos - h2o.com).mag**2
-            part2.moment = 6e-18*(oxy.pos - h2o.com) #C*pm
+            #part2.inertia = hydro1.mass*(hydro1.pos - h2o.com).mag**2+hydro2.mass*(hydro2.pos - h2o.com).mag**2+oxy.mass*(oxy.pos - h2o.com).mag**2
+            #part2.moment = 6e-18*(oxy.pos - h2o.com) #C*pm
             part2.torque = 0
             part2.angAcc = 0
             part2.angVel = 0
             part2.angDisp = 0
-            print(part2.inertia)
+            generate = False
         elif Particle2 == 'Chlorine':
             part2 = cl(xposslider.value, yposslider.value)
             part2.charge = -e
+            generate = False
     if run == True:
         part1.pos = part1.pos + vector(100, 0, 0)  # example update, make sure part1 is defined
-        part2torque = cross(part2.moment, efield(part1, part2))
-        part2angAcc = part2.torque/part2.inertia
-        part2angVel = part2.angVel + part2.angAcc * dt
-        part2angDisp = part2.angVel * dt
-        rotate(part2, axis=vector(0, 0, 1), angle=part2angDisp, origin=part2com)
+        part2.pos = part2.pos - vector(100,0,0)
     wtx.text = "X position (pm) = " + '{:.2f}'.format(xposslider.value)
     wty.text = "Y position (pm) = " + '{:.2f}'.format(yposslider.value)
