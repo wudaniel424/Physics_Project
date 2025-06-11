@@ -55,6 +55,11 @@ def runSimulation(evt):
         run = True      
 runButton = button(bind = runSimulation, text = 'Run Simulation')
 
+def Rz(ve, angle):
+    newx = cos(angle)*ve.x - sin(angle)*ve.y
+    newy = sin(angle)*ve.x + cos(angle)*ve.y
+    return vector(newx,newy,ve.z)
+
 while True:
     rate(100)
     if generate == True:
@@ -63,13 +68,9 @@ while True:
             oxy = sphere(pos = vector(xposslider.value, yposslider.value, 0), radius = 48, color = color.red, visible = True)
             hydro1 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value + 95.84 * sin(radians(52.225)), 0), radius = 37, visible = True)
             hydro2 = sphere(pos = vector(xposslider.value + 95.84 * cos(radians(52.225)),yposslider.value - 95.84 * sin(radians(52.225)), 0), radius = 37, visible = True)
-            #rotate(part2, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
-            #rotate(oxy, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
-            #rotate(hydro1, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
-            #rotate(hydro2, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=part2.origin)
-            hydro1.mass = 1.6735575e-27
-            hydro2.mass = 1.6735575e-27
-            oxy.mass = 2.6566962e-26
+            hydro1.mass = 1.6735575e-12#pg
+            hydro2.mass = 1.6735575e-12
+            oxy.mass = 2.6566962e-11
         
             part2.com = (hydro1.mass*hydro1.pos + hydro2.mass*hydro2.pos + oxy.mass*oxy.pos)/(hydro1.mass+hydro2.mass+oxy.mass)
             #part2.origin = h2o.com
@@ -79,6 +80,7 @@ while True:
             part2.angAcc = 0
             part2.angVel = 0
             part2.angDisp = 0
+            #rotate(part2, axis = vector(0,0,1), angle = rotAngleSlider.value, origin=(xposslider.value,yposslider.value,0))
             generate = False
             print(part2.com)
         elif Particle2 == 'Chlorine':
@@ -86,8 +88,11 @@ while True:
             part2.charge = -e
             generate = False
     if run == True:
-        part1.pos = part1.pos + vector(100, 0, 0)  # example update, make sure part1 is defined
-        part2.pos = part2.pos - vector(100,0,0)
+        part2.torque = 10e-10#constant torque for now until efield is defined
+        part2.angAcc = part2.torque/part2.inertia
+        part2.angVel = part2.angVel + part2.angAcc*dt
+        part2.angDisp = part2.angVel*dt
+        rotate(part2, axis=vector(0, 0, 1), angle=part2.angDisp, origin=part2.com)
         
     wtx.text = "X position (pm) = " + '{:.2f}'.format(xposslider.value)
     wty.text = "Y position (pm) = " + '{:.2f}'.format(yposslider.value)
