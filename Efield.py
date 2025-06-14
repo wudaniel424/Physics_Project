@@ -1,7 +1,8 @@
 GlowScript 3.0 VPython
 
+iterator = 0 #iterates between resetting arrows
 
-
+scene.range = 0.02
 k=9e9 #k constant
 q=1e-9 # test charge 
 s=0.001
@@ -9,11 +10,27 @@ Escale=2e-8 # scale arrow size
 
 horizontal_axis = vector(1,0,0) #Horizontal vector, used for calculation of the rotation of the ellipse caused by the dipole
 
-qn=sphere(pos=vector(-s/2,-0.003,0), radius=s/5, color=color.cyan) # test sphere (positive)
-qp=sphere(pos=vector(s/2,+ 0.003,0), radius=s/5, color=color.yellow) # test sphere (negative)
+
+
+qn=sphere(pos=vector(-s/2,-0.003,0), radius=s/5, color=color.cyan) # test sphere (negative)
+qp=sphere(pos=vector(s/2,+ 0.003,0), radius=s/5, color=color.yellow) # test sphere (positive)
 
 arrowList = [] #keeps track of all the arrows in the simulation
+chargedParticles = []
 
+def eField():
+    center = vector(0,0,0)
+    for particle in chargedParticles:
+        center += particle.pos
+    midpoint = center/len(chargedParticles)
+    
+    distances = []
+    for particle in chargedParticles:
+        distances.append((chargedParticles.pos - midpoint).mag)
+
+
+#def dipoleEField3 (sphere1, sphere2, sphere3, charge1, charge2, charge3, eLineCount):
+    
 def dipoleEField(sphere1, sphere2, charge1, charge2, eLineCount):
     if (abs(charge1) > abs(charge2)): # this is used to space out arrows in case the charges are not equal in magnitude
         chargeScale = abs(charge1)/abs(charge2)
@@ -62,13 +79,48 @@ def dipoleEField(sphere1, sphere2, charge1, charge2, eLineCount):
             
             theta=theta+dtheta # changing arrows
 
+def move1(evt):
+    console.log(evt)
+    if evt.id is 'x':
+        qn.pos.x= evt.value
+    else:
+        qn.pos.y=evt.value
+
+def move2(evt):
+    console.log(evt)
+    if evt.id is 'x':
+        qp.pos.x= evt.value
+    else:
+        qp.pos.y=evt.value
+
+x1slider = slider(bind = move1, max = 0.02, min = -0.02, step = 0.001, value = qn.pos.x, id = 'x')
+x1text = wtext(text = "X Position of negative particle")
+scene.append_to_caption('\n\n')
+
+y1slider = slider(bind = move1, max = 0.02, min = -0.02, step = 0.001, value = qn.pos.y, id = 'y')
+y1text = wtext(text = "Y Position of negative particle")
+scene.append_to_caption('\n\n')
+
+x2slider = slider(bind = move2, max = 0.02, min = -0.02, step = 0.001, value = qn.pos.x, id = 'x')
+x2text = wtext(text = "X Position of positive particle")
+scene.append_to_caption('\n\n')
+
+y2slider = slider(bind = move2, max = 0.02, min = -0.02, step = 0.001, value = qn.pos.y, id = 'y')
+y2text = wtext(text = "Y Position of positive particle")
+
 
 def arrowDeletion(): # deletes arrows in accord to tick speed, so that as particles move their e fields are changing
     for arrow in arrowList:
         arrow.visible = False
         del arrow 
-    
-dipoleEField(qp, qn, q, 3 * -q, 50)
+
+while True:
+    rate(100)
+    dipoleEField(qp, qn, q, -q, 50)
+    if (iterator % 4 == 0):
+        arrowDeletion()
+        iterator = 0
+    iterator+=1
 
 #arrowDeletion()
 
