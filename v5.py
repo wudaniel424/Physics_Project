@@ -104,7 +104,7 @@ fieldCurve = gcurve(graph=fieldGraph, color=color.blue, label = 'Electric Field 
 
 while True:
     rate(30)
-    if Chosen == True:
+    if Chosen == True and generate == True:
         runButton.disabled = False
     if generate == True:
         dipoleVisualizationButton.disabled = True
@@ -132,27 +132,40 @@ while True:
         elif Particle2 == 'Chlorine':
             part2 = cl(xposslider.value, yposslider.value)
             part2.charge = -e
+            part2.inertia = 0
             part2.com = part2.pos
             part2.moment = vector(0,0,0)
             part2.torque = 0
             part2.angAcc = 0
             part2.angVel = 0
             part2.angDisp = 0
+            dipoleArrow = arrow(pos = part2.com, axis = part2.moment*1e19, visible = False)
+            part2.acc = vector(0,0,0)
+            part2.vel = vector(0,0,0)
+            part2.disp = vector(0,0,0)
+            part2.mass = 5.89e-11
             generate = False
     if run == True:
-        if ((diff_angle(part2.moment, negative_axis) > diff_angle(efield(part1,part2), negative_axis) and diff_angle(part2.moment, negative_vertical) < diff_angle(efield(part1,part2), negative_vertical)) or (diff_angle(part2.moment, negative_axis) < diff_angle(efield(part1,part2), negative_axis) and diff_angle(part2.moment, negative_vertical) > diff_angle(efield(part1,part2), negative_vertical))):
-            part2.torque = (part2.moment).mag*efield(part1,part2).mag*sin(2*pi - diff_angle(part2.moment,efield(part1,part2)))*1e18
-            print(sin(2*pi - diff_angle(part2.moment,efield(part1,part2))))
-        else:
-            part2.torque = (part2.moment).mag*efield(part1,part2).mag*sin(diff_angle(part2.moment,efield(part1,part2)))*1e18
-            print(sin(diff_angle(part2.moment,efield(part1,part2))))
-        part2.angAcc = part2.torque/part2.inertia
-        part2.angVel = part2.angVel + part2.angAcc*dt
-        part2.angDisp = part2.angVel*dt
-        rotate(part2, axis=vector(0, 0, 1), angle=part2.angDisp, origin=part2.com)
-        rotate(dipoleArrow, axis=vector(0,0,1), angle = part2.angDisp, origin=part2.com)
-        part2.moment = 6e-18*(dipoleArrow.axis).hat
-        torqueCurve.plot(diff_angle(part2.moment,efield(part1,part2)), part2.torque)
+        if Particle2 == 'Water':
+            if ((diff_angle(part2.moment, negative_axis) > diff_angle(efield(part1,part2), negative_axis) and diff_angle(part2.moment, negative_vertical) < diff_angle(efield(part1,part2), negative_vertical)) or (diff_angle(part2.moment, negative_axis) < diff_angle(efield(part1,part2), negative_axis) and diff_angle(part2.moment, negative_vertical) > diff_angle(efield(part1,part2), negative_vertical))):
+                part2.torque = (part2.moment).mag*efield(part1,part2).mag*sin(2*pi - diff_angle(part2.moment,efield(part1,part2)))*1e18
+                print(sin(2*pi - diff_angle(part2.moment,efield(part1,part2))))
+            else:
+                part2.torque = (part2.moment).mag*efield(part1,part2).mag*sin(diff_angle(part2.moment,efield(part1,part2)))*1e18
+                print(sin(diff_angle(part2.moment,efield(part1,part2))))
+            part2.angAcc = part2.torque/part2.inertia
+            part2.angVel = part2.angVel + part2.angAcc*dt
+            part2.angDisp = part2.angVel*dt
+            rotate(part2, axis=vector(0, 0, 1), angle=part2.angDisp, origin=part2.com)
+            rotate(dipoleArrow, axis=vector(0,0,1), angle = part2.angDisp, origin=part2.com)
+            part2.moment = (part2.moment).mag*(dipoleArrow.axis).hat
+            torqueCurve.plot(diff_angle(part2.moment,efield(part1,part2)), part2.torque)
+        if Particle2 == 'Chlorine':
+            part2.acc = efield(part1,part2)*part2.charge/part2.mass*1e10
+            part2.vel = part2.vel + part2.acc*dt
+            part2.pos = part2.pos + part2.vel*dt
+        chlorine.disabled = True
+        water.disabled = True
         xposslider.disabled = True
         yposslider.disabled = True
     if dipoleVisualization == True:
